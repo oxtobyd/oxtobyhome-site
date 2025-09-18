@@ -21,13 +21,19 @@
         .cta{display:flex;gap:12px}
         .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);color:var(--text);text-decoration:none;background:#0b1020}
         .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
-        .screenshot{background:#0b1020;border:1px solid var(--border);border-radius:12px;height:260px;display:flex;align-items:center;justify-content:center;color:var(--muted);max-width:100%}
+        .screenshot{background:#0b1020;border:1px solid var(--border);border-radius:12px;height:260px;display:flex;align-items:center;justify-content:center;color:var(--muted);max-width:100%;cursor:zoom-in}
         .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px}
         .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
         .card h3{margin:0 0 8px;font-size:16px}
         footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;color:var(--muted)}
         a{color:#c7d2fe}
         @media (max-width:820px){.hero{grid-template-columns:1fr}}
+        /* Lightbox */
+        .lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000;padding:24px}
+        .lightbox-overlay.open{display:flex}
+        .lightbox-content{position:relative;max-width:min(1000px,95vw);max-height:90vh}
+        .lightbox-content img{width:100%;height:auto;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+        .lightbox-close{position:absolute;top:-12px;right:-12px;background:#111827;color:#fff;border:1px solid var(--border);border-radius:999px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
     </style>
 </head>
 <body>
@@ -78,9 +84,33 @@
             <div>Support: <a href="mailto:fynesys@gmail.com">fynesys@gmail.com</a></div>
         </footer>
     </div>
+    
+    <!-- Lightbox overlay -->
+    <div id="lightbox" class="lightbox-overlay" aria-hidden="true" role="dialog" aria-label="Screenshot preview">
+        <div class="lightbox-content">
+            <img id="lightbox-img" alt="Expanded screenshot">
+            <button class="lightbox-close" aria-label="Close preview">✕</button>
+        </div>
+    </div>
 
     <script>
-        (function(){ try{ document.getElementById('y').textContent=new Date().getFullYear(); }catch(e){} })();
+        (function(){ 
+            try{ document.getElementById('y').textContent=new Date().getFullYear(); }catch(e){}
+            try{
+                var thumb=document.querySelector('.screenshot');
+                var overlay=document.getElementById('lightbox');
+                var img=document.getElementById('lightbox-img');
+                var closeBtn=overlay.querySelector('.lightbox-close');
+
+                function openLightbox(){ img.src=thumb.getAttribute('src'); overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); }
+                function closeLightbox(){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); img.removeAttribute('src'); }
+
+                if(thumb){ thumb.addEventListener('click',openLightbox); }
+                closeBtn.addEventListener('click',closeLightbox);
+                overlay.addEventListener('click',function(e){ if(e.target===overlay) closeLightbox(); });
+                document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeLightbox(); });
+            }catch(e){}
+        })();
     </script>
 </body>
 </html>
